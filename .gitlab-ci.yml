@@ -1,0 +1,81 @@
+image: rvancea/maven-chrome-jdk8:latest
+
+variables: 
+  MAVEN_OPTS: "-Dmaven.repo.local=./.m2/repository"
+
+stages:
+  - build
+  - test
+  - package
+  - deploy
+  - notify
+
+build:
+  stage: build
+  script:
+    - mvn compile
+    - sh notify.sh ✅
+  cache:
+    paths:
+      - ./target
+      - ./.m2
+
+test:
+  stage: test
+  script:
+    - mvn test
+    - sh notify.sh ✅
+  cache:
+    paths:
+      - ./target
+      - ./.m2
+
+package:
+  stage: package
+  script:
+    - mvn package
+    - sh notify.sh ✅
+  artifacts:
+    paths:
+      - target/*.jar
+  cache:
+    policy: pull
+    paths:
+      - ./target
+      - ./.m2
+
+deploy_dev_server:
+  stage: deploy
+  before_script:
+    - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y)
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $DEV_HOST >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config'
+  script:
+    - scp target/*.jar $DEV_USER@$DEV_HOST:$DEV_APP_PATH/
+    - sh notify.sh ✅
+
+deploy_pre_prod:
+  stage: deploy
+  before_script:
+    - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y)
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $PRE_PROD_HOST >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config'
+  script:
+    - scp target/*.jar $PRE_PROD_USER@$PRE_PROD_HOST:$PRE_PROD_APP_PATH/
+    - sh notify.sh ✅
+
+notify_error:
+  stage: notify
+  script:
+  - sh notify.sh ❌
+  when: on_failure
