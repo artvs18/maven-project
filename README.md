@@ -1,5 +1,4 @@
 # Gitlab CI/CD for simple Java project with maven build tool and automatic notifications to Telegram
-# Maven Project
 
 It is a simple project that demonstrates how to use Maven to create and manage a Java project.
 
@@ -26,6 +25,5 @@ The provided jobs are configured to run in the order listed above, but can be cu
 By using this CI/CD pipeline, you can ensure that your project is always up-to-date and running smoothly with each commit or push to the repository.
 
 ## Example of notifications
-### On pipeline failure On pipeline succeed
-<img width="206" alt="image" src="https://user-images.githubusercontent.com/59523003/223788726-378f7fb9-46ac-4371-97db-35b337de08df.png"><img width="201" alt="image" src="https://user-images.githubusercontent.com/59523003/223788803-b95b0394-69c7-4988-b310-36226cc2bcb6.png">
-##
+### On pipeline failure &emsp;&emsp; On pipeline succeed
+<img width="206" alt="image" src="https://user-images.githubusercontent.com/59523003/223788726-378f7fb9-46ac-4371-97db-35b337de08df.png">&emsp;<img width="201" alt="image" src="https://user-images.githubusercontent.com/59523003/223788803-b95b0394-69c7-4988-b310-36226cc2bcb6.png">
